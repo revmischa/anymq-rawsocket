@@ -27,6 +27,7 @@ has 'connections' => (
 sub BUILD {}; after 'BUILD' => sub {
     my ($self) = @_;
 
+    # start listening
     $self->server_socket;
 };
 
@@ -69,7 +70,6 @@ sub handle_event {
     
     # find event topic
     my $topic_name = $evt->{Type} || $evt->{type} || $evt->{name} || $evt->{topic} || '*';
-    $topic_name = 'ping';
     my $topic = $self->topic($topic_name);
     $topic->publish($evt);
 }
