@@ -8,6 +8,8 @@ use Carp qw/croak/;
 
 has 'address' => ( is => 'rw', isa => 'Str' );
 
+has 'allow_wildcard_subscription' => ( is => 'rw', isa => 'Bool' );
+
 has 'server_socket' => (
     is => 'rw',
     lazy_build => 1,
@@ -70,8 +72,15 @@ sub handle_event {
     
     # find event topic
     my $topic_name = $evt->{Type} || $evt->{type} || $evt->{name} || $evt->{topic} || '*';
-    my $topic = $self->topic($topic_name);
-    $topic->publish($evt);
+    
+    $self->topic($topic_name)->publish($evt);
+    
+    if ($topic_name ne '*') {
+        # publish to '*' topic too
+        
+        $self->topic('*')->publish($evt)
+            if $self->allow_wildcard_subscription;
+    }
 }
 
 sub new_topic {
